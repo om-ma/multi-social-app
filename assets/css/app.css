@@ -102,4 +102,52 @@
 /* Make LiveView wrapper divs transparent for layout */
 [data-phx-session], [data-phx-teleported-src] { display: contents }
 
+/* ── SocialApp Design Tokens ── */
+@theme {
+  --color-sa-green: #1A6B45;
+  --color-sa-green-light: #2A8A5A;
+  --color-sa-green-glow: rgba(26, 107, 69, 0.25);
+  --color-sa-gold: #C9A84C;
+  --color-sa-gold-light: #E8C870;
+  --color-sa-black: #080C0A;
+  --color-sa-surface: #111714;
+  --color-sa-surface2: #182018;
+  --color-sa-surface3: #1E2A22;
+  --color-sa-border: #243028;
+  --color-sa-border2: #2E3C34;
+  --color-sa-gray: #6B8070;
+  --color-sa-gray-light: #9AB0A0;
+  --color-sa-white: #F0F7F2;
+  --color-sa-red: #E05050;
+  --color-sa-blue: #3B82C4;
+
+  --font-sora: 'Sora', sans-serif;
+  --font-dm: 'DM Sans', sans-serif;
+}
+
+/* ── SocialApp Base Styles ── */
+body {
+  font-family: var(--font-dm);
+  background-color: var(--color-sa-black);
+  color: var(--color-sa-white);
+}
+
+/* ── RTL Support ── */
+[dir="rtl"] {
+  direction: rtl;
+  text-align: right;
+}
+
+/* ── Scrollbar Styling ── */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-sa-border2);
+  border-radius: 2px;
+}
+
 /* This file is for your main application CSS */

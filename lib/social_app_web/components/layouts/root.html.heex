@@ -1,17 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" dir="ltr">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="csrf-token" content={get_csrf_token()} />
-    <.live_title default="SocialApp" suffix=" · Phoenix Framework">
+    <.live_title default="SocialApp">
       {assigns[:page_title]}
     </.live_title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
     <link phx-track-static rel="stylesheet" href={~p"/assets/css/app.css"} />
     <script defer phx-track-static type="text/javascript" src={~p"/assets/js/app.js"}>
     </script>
     <script>
       (() => {
+        // Theme
         const setTheme = (theme) => {
           if (theme === "system") {
             localStorage.removeItem("phx:theme");
@@ -22,11 +27,22 @@
           }
         };
         if (!document.documentElement.hasAttribute("data-theme")) {
-          setTheme(localStorage.getItem("phx:theme") || "system");
+          setTheme(localStorage.getItem("phx:theme") || "dark");
         }
-        window.addEventListener("storage", (e) => e.key === "phx:theme" && setTheme(e.newValue || "system"));
-        
-        window.addEventListener("phx:set-theme", (e) => setTheme(e.target.dataset.phxTheme));
+
+        // RTL toggle
+        const dir = localStorage.getItem("phx:dir") || "ltr";
+        document.documentElement.setAttribute("dir", dir);
+        if (dir === "rtl") {
+          document.documentElement.setAttribute("lang", "ar");
+        }
+        window.addEventListener("phx:toggle-rtl", () => {
+          const current = document.documentElement.getAttribute("dir");
+          const next = current === "rtl" ? "ltr" : "rtl";
+          document.documentElement.setAttribute("dir", next);
+          document.documentElement.setAttribute("lang", next === "rtl" ? "ar" : "en");
+          localStorage.setItem("phx:dir", next);
+        });
       })();
     </script>
   </head>
