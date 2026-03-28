@@ -3,7 +3,6 @@ defmodule SocialAppWeb.FeedLive do
 
   import SocialAppWeb.Components.PostCard
   import SocialAppWeb.Components.StoriesRow
-  import SocialAppWeb.Components.CreatePostModal
 
   alias SocialApp.Feed
 
@@ -154,68 +153,41 @@ defmodule SocialAppWeb.FeedLive do
 
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-sa-black">
-      <div class="max-w-2xl mx-auto px-4 py-6">
-        <%!-- Header --%>
-        <div class="flex items-center justify-between mb-6 rtl:flex-row-reverse">
-          <h1 class="font-['Sora'] text-2xl font-bold text-sa-white">Feed</h1>
-          <div class="flex items-center gap-3 rtl:flex-row-reverse">
-            <button
-              phx-click="open_create_post"
-              class="bg-sa-green hover:bg-sa-green-light text-sa-white font-['Sora'] font-semibold text-sm px-4 py-2 rounded-xl transition-colors flex items-center gap-1.5"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="w-4 h-4"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-                stroke-width="2"
-              >
-                <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
-              </svg>
-              Post
-            </button>
-            <a
-              href={~p"/logout"}
-              class="text-sa-gray hover:text-sa-red text-sm transition-colors"
-            >
-              Logout
-            </a>
-          </div>
-        </div>
+    <div class="px-4 py-6">
+      <%!-- Header --%>
+      <div class="flex items-center justify-between mb-6 rtl:flex-row-reverse">
+        <h1 class="font-['Sora'] text-2xl font-bold text-sa-white">Feed</h1>
+      </div>
 
-        <%!-- Stories row --%>
+      <%!-- Stories row (mobile only, desktop shows in right panel) --%>
+      <div class="lg:hidden">
         <.stories_row stories_by_user={@stories_by_user} current_user={@current_user} />
+      </div>
 
-        <%!-- Posts --%>
-        <div id="feed-posts">
-          <%= for post <- @posts do %>
-            <.post_card post={post} liked={MapSet.member?(@liked_ids, post.id)} />
-          <% end %>
-        </div>
-
-        <%!-- Load more --%>
-        <%= if @has_more do %>
-          <div class="flex justify-center py-6">
-            <button
-              phx-click="load_more"
-              class="bg-sa-surface hover:bg-sa-surface2 text-sa-gray-light font-['DM_Sans'] text-sm px-6 py-2.5 rounded-xl border border-sa-border transition-colors"
-            >
-              Load more
-            </button>
-          </div>
-        <% end %>
-
-        <%= if @posts == [] do %>
-          <div class="text-center py-12">
-            <p class="text-sa-gray text-sm">No posts yet. Be the first to share something!</p>
-          </div>
+      <%!-- Posts --%>
+      <div id="feed-posts">
+        <%= for post <- @posts do %>
+          <.post_card post={post} liked={MapSet.member?(@liked_ids, post.id)} />
         <% end %>
       </div>
 
-      <%!-- Create post modal --%>
-      <.create_post_modal show={@show_create_post} />
+      <%!-- Load more --%>
+      <%= if @has_more do %>
+        <div class="flex justify-center py-6">
+          <button
+            phx-click="load_more"
+            class="bg-sa-surface hover:bg-sa-surface2 text-sa-gray-light font-['DM_Sans'] text-sm px-6 py-2.5 rounded-xl border border-sa-border transition-colors"
+          >
+            Load more
+          </button>
+        </div>
+      <% end %>
+
+      <%= if @posts == [] do %>
+        <div class="text-center py-12">
+          <p class="text-sa-gray text-sm">No posts yet. Be the first to share something!</p>
+        </div>
+      <% end %>
 
       <%!-- Story viewer --%>
       <%= if @viewing_stories do %>

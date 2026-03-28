@@ -1,0 +1,39 @@
+<div class="min-h-screen bg-sa-black">
+  <%!-- Left Sidebar (desktop only) --%>
+  <SocialAppWeb.Components.Sidebar.sidebar
+    current_user={@current_user}
+    current_path={assigns[:nav_current_path] || "/"}
+    unread_notifications={assigns[:nav_unread_notifications] || 0}
+    unread_messages={assigns[:nav_unread_messages] || 0}
+    search_results={assigns[:nav_search_results] || []}
+    search_query={assigns[:nav_search_query] || ""}
+  />
+
+  <%!-- Main content area --%>
+  <main class="md:ms-[260px] lg:me-[300px] min-h-screen pb-20 md:pb-0">
+    <div class="max-w-[680px] mx-auto">
+      {@inner_content}
+    </div>
+  </main>
+
+  <%!-- Right Panel (desktop only, lg+) --%>
+  <SocialAppWeb.Components.RightPanel.right_panel
+    current_user={@current_user}
+    stories_by_user={assigns[:nav_stories_by_user] || %{}}
+  />
+
+  <%!-- Bottom Nav (mobile only) --%>
+  <SocialAppWeb.Components.BottomNav.bottom_nav
+    current_user={@current_user}
+    current_path={assigns[:nav_current_path] || "/"}
+    unread_messages={assigns[:nav_unread_messages] || 0}
+  />
+
+  <%!-- Global Create Post Modal --%>
+  <SocialAppWeb.Components.CreatePostModal.create_post_modal show={
+    assigns[:show_create_post] || false
+  } />
+
+  <%!-- Flash messages --%>
+  <.flash_group flash={@flash} />
+</div>

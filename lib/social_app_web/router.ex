@@ -26,7 +26,8 @@ defmodule SocialAppWeb.Router do
   end
 
   live_session :authenticated,
-    on_mount: [{SocialAppWeb.LiveAuth, :require_auth}] do
+    on_mount: [{SocialAppWeb.LiveAuth, :require_auth}, {SocialAppWeb.NavShell, :default}],
+    layout: {SocialAppWeb.Layouts, :app} do
     scope "/", SocialAppWeb do
       pipe_through :browser
 
@@ -38,6 +39,7 @@ defmodule SocialAppWeb.Router do
       live "/notifications", NotificationsLive
       live "/messages", MessagingLive
       live "/messages/:id", ChatWindowLive
+      live "/call/:id", CallLive
     end
   end
 

@@ -24,8 +24,11 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/social_app"
 import topbar from "../vendor/topbar"
+import WebRTCHook from "./webrtc_hook"
 
 let Hooks = {...colocatedHooks}
+
+Hooks.WebRTC = WebRTCHook
 
 Hooks.ScrollBottom = {
   mounted() {

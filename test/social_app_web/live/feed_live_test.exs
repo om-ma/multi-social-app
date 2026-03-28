@@ -84,16 +84,23 @@ defmodule SocialAppWeb.FeedLiveTest do
 
       {:ok, view, _html} = live(conn, ~p"/feed")
 
-      # Open modal
-      view |> element("button[phx-click=open_create_post]") |> render_click()
+      # Open modal via sidebar Create Post button (gold, full-width button)
+      view
+      |> element("button.w-full.bg-sa-gold[phx-click=open_create_post]")
+      |> render_click()
+
       assert render(view) =~ "Create Post"
 
-      # Submit
+      # Submit — NavShell handles create_post and redirects to /feed
       view
       |> element("form[phx-submit=create_post]")
       |> render_submit(%{content: "My new post!", media_type: ""})
 
-      html = render(view)
+      # Follow the redirect
+      {path, _flash} = assert_redirect(view)
+      assert path == "/feed"
+
+      {:ok, _view, html} = live(conn, ~p"/feed")
       assert html =~ "My new post!"
     end
   end
