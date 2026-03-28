@@ -2,6 +2,7 @@ defmodule SocialAppWeb.UserSocket do
   use Phoenix.Socket
 
   channel "conversation:*", SocialAppWeb.ConversationChannel
+  channel "call:*", SocialAppWeb.CallChannel
 
   @impl true
   def connect(%{"user_id" => user_id}, socket, _connect_info) do
