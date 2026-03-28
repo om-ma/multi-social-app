@@ -16,9 +16,9 @@ config :social_app, SocialApp.Repo,
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :social_app, SocialAppWeb.Endpoint,
-  http: [ip: {127, 0, 0, 1}, port: 4002],
+  http: [ip: {127, 0, 0, 1}, port: 4000],
   secret_key_base: "MCsfWDcSVWsYVUJPVM4heGgG12pijID1+T5DiefgMgYQ0ZfCAEzglnsB5xQDJSkA",
-  server: false
+  server: true
 
 # In test we don't send emails
 config :social_app, SocialApp.Mailer, adapter: Swoosh.Adapters.Test
@@ -39,3 +39,14 @@ config :phoenix_live_view,
 # Sort query params output of verified routes for robust url comparisons
 config :phoenix,
   sort_verified_routes_query_params: true
+
+# Enable SQL sandbox for Wallaby browser tests
+config :social_app, :sql_sandbox, true
+
+# Wallaby configuration
+config :wallaby,
+  otp_app: :social_app,
+  base_url: "http://localhost:4000",
+  driver: Wallaby.Chrome,
+  chromedriver: [headless: true],
+  screenshot_on_failure: true
