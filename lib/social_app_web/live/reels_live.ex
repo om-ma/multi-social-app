@@ -85,6 +85,10 @@ defmodule SocialAppWeb.ReelsLive do
     {:noreply, assign(socket, show_upload_modal: false, caption: "")}
   end
 
+  def handle_event("noop", _params, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("save_reel", %{"caption" => caption}, socket) do
     user = socket.assigns.current_user
 
@@ -120,7 +124,7 @@ defmodule SocialAppWeb.ReelsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="fixed inset-0 bg-sa-black z-40 flex flex-col">
+    <div class="absolute inset-0 bg-sa-black flex flex-col">
       <%!-- Top bar: Tabs + Upload --%>
       <div class="absolute top-0 inset-x-0 z-50 flex items-center justify-center pt-4 pb-2 px-4">
         <div class="flex items-center gap-6">
@@ -206,7 +210,7 @@ defmodule SocialAppWeb.ReelsLive do
         >
           <div
             class="bg-sa-surface rounded-2xl w-full max-w-md p-6 border border-sa-border"
-            phx-click-away="close_upload_modal"
+            phx-click="noop"
           >
             <div class="flex items-center justify-between mb-6">
               <h2 class="text-sa-white text-lg font-bold font-['Sora']">Create Reel</h2>
