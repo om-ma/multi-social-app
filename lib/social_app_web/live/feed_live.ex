@@ -86,6 +86,10 @@ defmodule SocialAppWeb.FeedLive do
     {:noreply, assign(socket, :show_create_post, false)}
   end
 
+  def handle_event("noop", _params, socket) do
+    {:noreply, socket}
+  end
+
   def handle_event("create_post", %{"content" => content} = params, socket) do
     attrs =
       %{"content" => content}

@@ -98,6 +98,20 @@ defmodule SocialAppWeb.Features.FeedTest do
       |> assert_has(button("Load more"))
     end
 
+    test "create post modal stays open when clicking textarea", %{session: session} do
+      user = create_test_user()
+
+      session
+      |> login(user)
+      |> assert_has(css("h1", text: "Feed"))
+      |> click(css("button", text: "Create Post", count: :any, at: 0))
+      |> assert_has(css("h2", text: "Create Post"))
+      |> click(css("textarea[name='content']"))
+      |> assert_has(css("h2", text: "Create Post"))
+      |> fill_in(css("textarea[name='content']"), with: "Testing modal stays open")
+      |> assert_has(css("h2", text: "Create Post"))
+    end
+
     test "navigate to user profile by clicking username on post", %{session: session} do
       user = create_test_user(%{"display_name" => "ClickableUser"})
       {:ok, _post} = Feed.create_post(user.id, %{"content" => "Click my name"})

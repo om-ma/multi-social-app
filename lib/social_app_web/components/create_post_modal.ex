@@ -12,7 +12,7 @@ defmodule SocialAppWeb.Components.CreatePostModal do
       >
         <div
           class="bg-sa-surface border border-sa-border rounded-2xl w-full max-w-lg mx-4 p-6"
-          phx-click-away="close_create_post"
+          phx-click="noop"
           phx-window-keydown="close_create_post"
           phx-key="Escape"
         >
