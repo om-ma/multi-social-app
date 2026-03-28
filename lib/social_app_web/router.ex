@@ -18,6 +18,20 @@ defmodule SocialAppWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :home
+    get "/login", AuthController, :login_page
+    post "/login", AuthController, :login
+    get "/register", AuthController, :register_page
+    post "/register", AuthController, :register
+    get "/logout", AuthController, :logout
+  end
+
+  live_session :authenticated,
+    on_mount: [{SocialAppWeb.LiveAuth, :require_auth}] do
+    scope "/", SocialAppWeb do
+      pipe_through :browser
+
+      live "/feed", FeedLive
+    end
   end
 
   # Other scopes may use custom stacks.

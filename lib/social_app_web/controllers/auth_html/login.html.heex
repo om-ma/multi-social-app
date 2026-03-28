@@ -1,0 +1,50 @@
+<div class="min-h-screen flex items-center justify-center bg-[#080C0A]">
+  <div class="w-full max-w-sm p-8 bg-[#111714] rounded-2xl border border-[#243028]">
+    <h1 class="text-2xl font-bold text-[#F0F7F2] mb-2 font-['Sora']">
+      <span class="text-[#1A6B45]">Social</span><span class="text-[#C9A84C]">App</span>
+    </h1>
+    <p class="text-[#9AB0A0] text-sm mb-6">Sign in to your account</p>
+
+    <%= if @error do %>
+      <div class="mb-4 p-3 rounded-lg bg-[#E05050]/10 border border-[#E05050]/30 text-[#E05050] text-sm">
+        {@error}
+      </div>
+    <% end %>
+
+    <form action={~p"/login"} method="post">
+      <input type="hidden" name="_csrf_token" value={Phoenix.Controller.get_csrf_token()} />
+
+      <div class="mb-4">
+        <label class="block text-sm text-[#9AB0A0] mb-1">Email</label>
+        <input
+          type="email"
+          name="email"
+          required
+          class="w-full px-4 py-3 bg-[#182018] border border-[#243028] rounded-xl text-[#F0F7F2] text-sm focus:border-[#1A6B45] focus:outline-none"
+        />
+      </div>
+
+      <div class="mb-6">
+        <label class="block text-sm text-[#9AB0A0] mb-1">Password</label>
+        <input
+          type="password"
+          name="password"
+          required
+          class="w-full px-4 py-3 bg-[#182018] border border-[#243028] rounded-xl text-[#F0F7F2] text-sm focus:border-[#1A6B45] focus:outline-none"
+        />
+      </div>
+
+      <button
+        type="submit"
+        class="w-full py-3 bg-[#1A6B45] hover:bg-[#2A8A5A] text-white font-semibold rounded-xl transition"
+      >
+        Sign In
+      </button>
+    </form>
+
+    <p class="text-center text-sm text-[#9AB0A0] mt-6">
+      Don't have an account?
+      <a href={~p"/register"} class="text-[#C9A84C] hover:underline">Sign up</a>
+    </p>
+  </div>
+</div>
