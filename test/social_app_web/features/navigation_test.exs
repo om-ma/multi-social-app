@@ -56,6 +56,25 @@ defmodule SocialAppWeb.Features.NavigationTest do
       |> assert_has(css("h1", text: "NavUser"))
     end
 
+    test "create post modal works from messages page without closing on textarea click", %{
+      session: session
+    } do
+      user = create_test_user()
+
+      session
+      |> resize_window(1280, 800)
+      |> login(user)
+      |> assert_has(css("h1", text: "Feed"))
+      |> click(css("a[href='/messages']"))
+      |> assert_has(css("h1", text: "Messages"))
+      |> click(css("button[phx-click='open_create_post']", count: :any, at: 0))
+      |> assert_has(css("h2", text: "Create Post"))
+      |> click(css("textarea[name='content']"))
+      |> assert_has(css("h2", text: "Create Post"))
+      |> fill_in(css("textarea[name='content']"), with: "Post from messages page")
+      |> assert_has(css("h2", text: "Create Post"))
+    end
+
     test "create post button opens modal", %{session: session} do
       user = create_test_user()
 

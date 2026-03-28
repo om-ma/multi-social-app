@@ -55,6 +55,10 @@ defmodule SocialAppWeb.NavShell do
     {:cont, assign(socket, :nav_current_path, path)}
   end
 
+  defp handle_event("noop", _params, socket) do
+    {:halt, socket}
+  end
+
   defp handle_event("open_create_post", _params, socket) do
     {:halt, assign(socket, :show_create_post, true)}
   end
