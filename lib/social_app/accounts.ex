@@ -37,4 +37,14 @@ defmodule SocialApp.Accounts do
   def change_registration(attrs \\ %{}) do
     User.registration_changeset(%User{}, attrs)
   end
+
+  def update_user(%User{} = user, attrs) do
+    user
+    |> User.profile_changeset(attrs)
+    |> Repo.update()
+  end
+
+  def change_profile(%User{} = user, attrs \\ %{}) do
+    User.profile_changeset(user, attrs)
+  end
 end

@@ -150,4 +150,18 @@ body {
   border-radius: 2px;
 }
 
+/* ── Reels Scroll-Snap ── */
+.reels-scroll-container {
+  scroll-snap-type: y mandatory;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+.reels-scroll-container::-webkit-scrollbar {
+  display: none;
+}
+.reel-item {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
 /* This file is for your main application CSS */

@@ -25,11 +25,30 @@ import {LiveSocket} from "phoenix_live_view"
 import {hooks as colocatedHooks} from "phoenix-colocated/social_app"
 import topbar from "../vendor/topbar"
 
+let Hooks = {...colocatedHooks}
+
+Hooks.ScrollBottom = {
+  mounted() {
+    this.scrollToBottom()
+    this.observer = new MutationObserver(() => this.scrollToBottom())
+    this.observer.observe(this.el, { childList: true, subtree: true })
+  },
+  updated() {
+    this.scrollToBottom()
+  },
+  destroyed() {
+    if (this.observer) this.observer.disconnect()
+  },
+  scrollToBottom() {
+    this.el.scrollTop = this.el.scrollHeight
+  }
+}
+
 const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 const liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: {_csrf_token: csrfToken},
-  hooks: {...colocatedHooks},
+  hooks: Hooks,
 })
 
 // Show progress bar on live navigation and form submits

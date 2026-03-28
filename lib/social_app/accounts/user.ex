@@ -34,6 +34,14 @@ defmodule SocialApp.Accounts.User do
     |> hash_password()
   end
 
+  def profile_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:display_name, :bio, :location, :avatar_url, :cover_url])
+    |> validate_length(:display_name, max: 50)
+    |> validate_length(:bio, max: 160)
+    |> validate_length(:location, max: 100)
+  end
+
   defp hash_password(changeset) do
     case get_change(changeset, :password) do
       nil ->

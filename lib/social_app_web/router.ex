@@ -31,6 +31,13 @@ defmodule SocialAppWeb.Router do
       pipe_through :browser
 
       live "/feed", FeedLive
+      live "/reels", ReelsLive
+      live "/u/:username", ProfileLive
+      live "/settings/profile", ProfileEditLive
+      live "/explore", ExploreLive
+      live "/notifications", NotificationsLive
+      live "/messages", MessagingLive
+      live "/messages/:id", ChatWindowLive
     end
   end
 

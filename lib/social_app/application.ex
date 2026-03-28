@@ -12,6 +12,7 @@ defmodule SocialApp.Application do
       SocialApp.Repo,
       {DNSCluster, query: Application.get_env(:social_app, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: SocialApp.PubSub},
+      SocialAppWeb.Presence,
       # Start a worker by calling: SocialApp.Worker.start_link(arg)
       # {SocialApp.Worker, arg},
       # Start to serve requests, typically the last entry
