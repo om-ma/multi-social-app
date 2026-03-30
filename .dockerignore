@@ -1,0 +1,50 @@
+# Build artifacts
+_build/
+deps/
+
+# Generated files
+*.beam
+*.ez
+
+# Git
+.git/
+.gitignore
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Documentation
+doc/
+
+# Test files
+test/
+cover/
+
+# Environment files
+.env*
+*.env
+
+# Docker files
+docker-compose*.yml
+Dockerfile*
+
+# CI/CD
+.github/
+
+# Claude
+.claude/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log
+
+# Temporary files
+tmp/
+*.log
