@@ -1,0 +1,233 @@
+name: Test and Deploy
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  ELIXIR_VERSION: "1.16.0"
+  OTP_VERSION: "26.2"
+  MIX_ENV: test
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: social_app_test
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Elixir
+        uses: erlef/setup-beam@v1
+        with:
+          elixir-version: ${{ env.ELIXIR_VERSION }}
+          otp-version: ${{ env.OTP_VERSION }}
+
+      - name: Cache deps
+        uses: actions/cache@v4
+        with:
+          path: deps
+          key: ${{ runner.os }}-mix-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-mix-
+
+      - name: Cache _build
+        uses: actions/cache@v4
+        with:
+          path: _build
+          key: ${{ runner.os }}-build-${{ hashFiles('**/mix.lock') }}
+          restore-keys: ${{ runner.os }}-build-
+
+      - name: Install dependencies
+        run: mix deps.get
+
+      - name: Check formatting
+        run: mix format --check-formatted
+
+      - name: Compile (test)
+        run: mix compile --warnings-as-errors
+
+      - name: Compile (prod check)
+        run: MIX_ENV=prod mix compile --warnings-as-errors
+        env:
+          DATABASE_URL: ecto://postgres:postgres@localhost/social_app_test
+          SECRET_KEY_BASE: test_secret_key_base_that_is_at_least_64_bytes_long_for_prod_compile_check_only
+
+      - name: Run tests
+        run: mix test --exclude browser
+        env:
+          DATABASE_URL: ecto://postgres:postgres@localhost/social_app_test
+
+  deploy:
+    name: Deploy to EC2
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.event_name == 'workflow_dispatch'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build Docker image
+        run: |
+          docker build -t social_app:${{ github.sha }} -t social_app:latest .
+
+      - name: Save Docker image
+        run: |
+          docker save social_app:latest | gzip > social_app.tar.gz
+
+      - name: Setup SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/ec2_key
+          chmod 600 ~/.ssh/ec2_key
+          ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
+
+      - name: Test SSH connection
+        run: |
+          ssh -i ~/.ssh/ec2_key -o StrictHostKeyChecking=no ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "echo 'SSH connection successful'"
+
+      - name: Copy files to EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "mkdir -p ~/social_app"
+          scp -i ~/.ssh/ec2_key social_app.tar.gz docker-compose.prod.yml ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:~/social_app/
+
+      - name: Create .env file on EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} "cat > ~/social_app/.env << EOF
+          DATABASE_URL=${{ secrets.DATABASE_URL }}
+          SECRET_KEY_BASE=${{ secrets.SECRET_KEY_BASE }}
+          PHX_HOST=${{ secrets.PHX_HOST }}
+          PORT=4000
+          EOF"
+
+      - name: Setup Docker on EC2 (if needed)
+        run: |
+          ssh -i ~/.ssh/ec2_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'SETUP_SCRIPT'
+            if ! command -v docker &> /dev/null; then
+              echo "Installing Docker from official repo..."
+
+              sudo apt-get update
+              sudo apt-get install -y ca-certificates curl gnupg
+
+              sudo install -m 0755 -d /etc/apt/keyrings
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+              sudo chmod a+r /etc/apt/keyrings/docker.gpg
+
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+              sudo apt-get update
+              sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+              sudo usermod -aG docker $USER
+
+              echo "Docker installed successfully."
+            fi
+          SETUP_SCRIPT
+
+      - name: Deploy to EC2
+        run: |
+          ssh -i ~/.ssh/ec2_key ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} << 'DEPLOY_SCRIPT'
+            set -e
+            cd ~/social_app
+
+            DOCKER_CMD="docker"
+            if ! docker info &> /dev/null; then
+              DOCKER_CMD="sudo docker"
+            fi
+
+            # Load Docker image
+            gunzip -c social_app.tar.gz | $DOCKER_CMD load
+
+            # ── Blue-Green Deploy ──
+
+            # Tag current image for rollback
+            $DOCKER_CMD tag social_app:latest social_app:rollback 2>/dev/null || true
+
+            # Start canary container on different port
+            $DOCKER_CMD rm -f social_app_new 2>/dev/null || true
+            $DOCKER_CMD run -d \
+              --name social_app_new \
+              --network host \
+              --env-file .env \
+              -e PHX_SERVER=true \
+              -e MIX_ENV=prod \
+              -e PORT=4001 \
+              -e RELEASE_NODE=social_app_canary \
+              social_app:latest
+
+            # Health check on canary (up to 60s)
+            echo "Waiting for canary health check on port 4001..."
+            HEALTHY=false
+            for i in $(seq 1 30); do
+              if wget -q --spider http://localhost:4001/health 2>/dev/null; then
+                echo "Canary is healthy on attempt $i."
+                HEALTHY=true
+                break
+              fi
+              echo "Attempt $i/30 - waiting..."
+              sleep 2
+            done
+
+            if [ "$HEALTHY" != "true" ]; then
+              echo "ERROR: Canary failed health check! Rolling back."
+              $DOCKER_CMD logs social_app_new --tail 50
+              $DOCKER_CMD stop social_app_new || true
+              $DOCKER_CMD rm social_app_new || true
+              echo "Old container still running. Deploy aborted."
+              exit 1
+            fi
+
+            # Run migrations
+            echo "Running migrations..."
+            $DOCKER_CMD exec -e RELEASE_NODE=social_app_canary social_app_new /app/bin/social_app eval "SocialApp.Release.migrate()"
+
+            # ── Cutover ──
+            echo "Cutting over to new container..."
+            $DOCKER_CMD stop social_app 2>/dev/null || true
+            $DOCKER_CMD rm social_app 2>/dev/null || true
+
+            $DOCKER_CMD stop social_app_new
+            $DOCKER_CMD rm social_app_new
+            $DOCKER_CMD compose -f docker-compose.prod.yml up -d
+
+            # Verify production container
+            echo "Verifying production container..."
+            sleep 3
+            for i in $(seq 1 15); do
+              if wget -q --spider http://localhost:4000/health 2>/dev/null; then
+                echo "Production container is healthy."
+                break
+              fi
+              if [ "$i" -eq 15 ]; then
+                echo "WARNING: Production container not responding on port 4000"
+              fi
+              sleep 2
+            done
+
+            # Cleanup
+            $DOCKER_CMD image prune -f
+
+            echo "Deployment complete!"
+          DEPLOY_SCRIPT
