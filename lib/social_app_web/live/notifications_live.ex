@@ -20,7 +20,7 @@ defmodule SocialAppWeb.NotificationsLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-sa-black">
+    <div class="max-w-[680px] mx-auto min-h-screen bg-sa-black">
       <div class="max-w-2xl mx-auto px-4 py-6">
         <h1 class="text-2xl font-bold font-['Sora'] text-sa-white mb-6">Notifications</h1>
 

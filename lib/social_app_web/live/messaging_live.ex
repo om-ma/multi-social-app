@@ -20,7 +20,7 @@ defmodule SocialAppWeb.MessagingLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-sa-black">
+    <div class="max-w-[680px] mx-auto min-h-screen bg-sa-black">
       <div class="max-w-2xl mx-auto px-4 py-6">
         <%!-- Header --%>
         <div class="flex items-center justify-between mb-6">

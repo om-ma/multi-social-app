@@ -139,7 +139,7 @@ defmodule SocialAppWeb.ProfileLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-sa-black">
+    <div class="max-w-[680px] mx-auto min-h-screen bg-sa-black">
       <%!-- Cover --%>
       <div class="relative h-48 md:h-64 bg-sa-surface">
         <%= if @profile_user.cover_url do %>
