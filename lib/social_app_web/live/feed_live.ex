@@ -153,7 +153,7 @@ defmodule SocialAppWeb.FeedLive do
 
   def render(assigns) do
     ~H"""
-    <div class="px-4 py-6">
+    <div class="max-w-[680px] mx-auto px-4 py-6">
       <%!-- Header --%>
       <div class="flex items-center justify-between mb-6 rtl:flex-row-reverse">
         <h1 class="font-['Sora'] text-2xl font-bold text-sa-white">Feed</h1>

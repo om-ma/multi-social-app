@@ -107,7 +107,7 @@ defmodule SocialAppWeb.ChatWindowLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-sa-black flex flex-col" id="chat-window">
+    <div class="max-w-[680px] mx-auto min-h-screen bg-sa-black flex flex-col" id="chat-window">
       <%!-- Header --%>
       <div class="sticky top-0 z-10 bg-sa-surface border-b border-sa-border px-4 py-3">
         <div class="max-w-2xl mx-auto flex items-center gap-3">
