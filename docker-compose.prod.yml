@@ -8,7 +8,7 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - SECRET_KEY_BASE=${SECRET_KEY_BASE}
       - PHX_HOST=${PHX_HOST:-localhost}
-      - PORT=${PORT:-4000}
+      - PORT=${PORT:-4003}
       - PHX_SERVER=true
       - MIX_ENV=prod
     healthcheck:
@@ -18,7 +18,7 @@ services:
           "wget",
           "-q",
           "--spider",
-          "http://localhost:4000/health",
+          "http://localhost:4003/health",
         ]
       interval: 30s
       timeout: 10s

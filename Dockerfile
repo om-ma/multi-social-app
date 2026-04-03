@@ -62,7 +62,7 @@ COPY --from=builder --chown=elixir:elixir /app/_build/prod/rel/social_app ./
 
 USER elixir
 
-EXPOSE 4000
+EXPOSE 4003
 
 # Start server
 CMD ["/app/bin/social_app", "start"]
