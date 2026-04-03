@@ -1,5 +1,6 @@
 defmodule SocialAppWeb.Features.ProfileTest do
   use SocialAppWeb.FeatureCase, async: false
+  @moduletag :browser
 
   alias SocialApp.Feed
 

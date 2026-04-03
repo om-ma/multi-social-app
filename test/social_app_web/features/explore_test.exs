@@ -1,5 +1,6 @@
 defmodule SocialAppWeb.Features.ExploreTest do
   use SocialAppWeb.FeatureCase, async: false
+  @moduletag :browser
 
   describe "explore page" do
     test "explore page loads with header and search bar", %{session: session} do

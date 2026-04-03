@@ -1,5 +1,6 @@
 defmodule SocialAppWeb.Features.AuthTest do
   use SocialAppWeb.FeatureCase, async: false
+  @moduletag :browser
 
   describe "registration" do
     test "register new user and land on /feed", %{session: session} do

@@ -1,5 +1,6 @@
 defmodule SocialAppWeb.Features.NavigationTest do
   use SocialAppWeb.FeatureCase, async: false
+  @moduletag :browser
 
   describe "navigation" do
     test "feed page renders with sidebar and bottom nav", %{session: session} do

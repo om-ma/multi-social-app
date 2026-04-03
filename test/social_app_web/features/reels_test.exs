@@ -1,5 +1,6 @@
 defmodule SocialAppWeb.Features.ReelsTest do
   use SocialAppWeb.FeatureCase, async: false
+  @moduletag :browser
 
   alias SocialApp.Reels
 

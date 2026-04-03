@@ -1,5 +1,6 @@
 defmodule SocialAppWeb.Features.MessagingTest do
   use SocialAppWeb.FeatureCase, async: false
+  @moduletag :browser
 
   alias SocialApp.Messaging
 
