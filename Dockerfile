@@ -1,12 +1,14 @@
 # Build stage
-ARG ELIXIR_VERSION=1.16.0
-ARG OTP_VERSION=26.2
-ARG ALPINE_VERSION=3.20.0
+ARG ELIXIR_VERSION=1.16.3
+ARG OTP_VERSION=26.2.5.3
+ARG DEBIAN_VERSION=bullseye-20260316-slim
 
-FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-alpine-${ALPINE_VERSION} AS builder
+FROM hexpm/elixir:${ELIXIR_VERSION}-erlang-${OTP_VERSION}-debian-${DEBIAN_VERSION} AS builder
 
 # Install build dependencies
-RUN apk add --no-cache build-base git nodejs npm
+RUN apt-get update -y && \
+    apt-get install -y build-essential git nodejs npm && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Set build environment
 ENV MIX_ENV=prod
@@ -43,10 +45,16 @@ RUN mix assets.deploy
 RUN mix release
 
 # Runtime stage
-FROM alpine:${ALPINE_VERSION} AS runner
+FROM debian:${DEBIAN_VERSION} AS runner
 
 # Install runtime dependencies
-RUN apk add --no-cache libstdc++ openssl ncurses-libs postgresql-client
+RUN apt-get update -y && \
+    apt-get install -y libstdc++6 openssl libncurses5 locales wget && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Set locale
+RUN sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen
+ENV LANG en_US.UTF-8
 
 ENV MIX_ENV=prod
 ENV PHX_SERVER=true
@@ -54,8 +62,8 @@ ENV PHX_SERVER=true
 WORKDIR /app
 
 # Create non-root user
-RUN addgroup -g 1000 elixir && \
-    adduser -u 1000 -G elixir -s /bin/sh -D elixir
+RUN groupadd -g 1000 elixir && \
+    useradd -u 1000 -g elixir -s /bin/sh -m elixir
 
 # Copy release from builder
 COPY --from=builder --chown=elixir:elixir /app/_build/prod/rel/social_app ./
