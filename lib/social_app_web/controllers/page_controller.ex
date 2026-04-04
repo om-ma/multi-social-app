@@ -2,6 +2,6 @@ defmodule SocialAppWeb.PageController do
   use SocialAppWeb, :controller
 
   def home(conn, _params) do
-    render(conn, :home)
+    redirect(conn, to: "/feed")
   end
 end
