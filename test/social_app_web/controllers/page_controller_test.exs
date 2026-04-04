@@ -1,8 +1,8 @@
 defmodule SocialAppWeb.PageControllerTest do
   use SocialAppWeb.ConnCase
 
-  test "GET /", %{conn: conn} do
+  test "GET / redirects to /feed", %{conn: conn} do
     conn = get(conn, ~p"/")
-    assert html_response(conn, 200) =~ "Peace of mind from prototype to production"
+    assert redirected_to(conn, 302) == "/feed"
   end
 end
